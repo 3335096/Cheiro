@@ -5,7 +5,7 @@ sqlalchemy[asyncio]==2.0.36
 asyncpg==0.30.0
 alembic==1.14.0
 redis==5.2.1
-arq==0.26.1
+arq==0.28.0
 httpx==0.28.1
 python-multipart==0.0.17
 langchain==0.3.9
