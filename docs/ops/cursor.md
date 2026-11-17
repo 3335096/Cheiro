@@ -6,7 +6,7 @@
 |-----|-----|-------|
 | Инструкции агентам | `AGENTS.md` | суть продукта, стек, ограничения, команды, git-процесс |
 | Правила | `.cursor/rules/*.mdc` | постоянные (продукт, git, приватность) и по маске файлов (backend, RAG, интерфейсы, документация) |
-| Скилы | `.cursor/skills/*/SKILL.md` | повторяемые процедуры: `add-rag-source`, `rag-eval`, `new-ui-screen`, `release-to-railway`, `sync-with-github`, `write-adr` |
+| Скилы | `.cursor/skills/*/SKILL.md` | повторяемые процедуры: `add-rag-source`, `rag-eval`, `new-ui-screen`, `release-to-railway`, `sync-with-github`, `handoff-work`, `write-adr` |
 | Субагенты | `.cursor/agents/*.md` | `rag-engineer`, `ui-reviewer`, `backend-reviewer`, `docs-writer`, `privacy-auditor` |
 | Хуки | `.cursor/hooks.json`, `.cursor/hooks/` | форматирование после правок; блокировка force-push, пушей в `main` и коммитов с секретами |
 | Правила Bugbot | `.cursor/BUGBOT.md` | ревью PR (`.mdc` на Bugbot не действуют) |
@@ -15,6 +15,7 @@
 ## Как этим пользоваться
 
 - Обычная работа: опишите задачу, агент следует `AGENTS.md` и правилам.
+- Смена устройства: на текущем напишите «закончил работу локально», на следующем — «продолжи ветку <имя>» (скил `handoff-work`).
 - Правка RAG: попросите использовать скил `rag-eval` или субагента `rag-engineer`; перед слиянием запускается `npm run eval`.
 - Новый экран: скил `new-ui-screen`, затем ревью субагентом `ui-reviewer`.
 - Перед PR с изменением приватности (фото, Telegram-авторизация, отчёты): `privacy-auditor`.
