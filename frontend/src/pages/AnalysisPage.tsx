@@ -37,7 +37,6 @@ export function AnalysisPage() {
           setLabel(STATUS_COPY[job.status] ?? job.status);
           if (job.status === "done") {
             sessionStorage.setItem("cheiro.teaser", job.teaser ?? "");
-            sessionStorage.setItem("cheiro.report", job.full_report ?? "");
             navigate("/result", { replace: true });
             return;
           }

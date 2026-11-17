@@ -1,5 +1,4 @@
-import base64
-from typing import Any
+from typing import Any, ClassVar
 
 import redis.asyncio as redis
 from arq import create_pool
@@ -114,7 +113,7 @@ async def analysis_job(ctx: dict[str, Any], job_id: str) -> None:
 
                 if job.full_report:
                     await send_message(job.telegram_user_id, job.full_report)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 job.status = JobStatus.failed
                 job.error_message = str(exc)[:2000]
             await session.commit()
@@ -141,6 +140,6 @@ async def startup(ctx: dict[str, Any]) -> None:
 
 
 class WorkerSettings:
-    functions = [ingest_source_job, analysis_job]
+    functions: ClassVar[list] = [ingest_source_job, analysis_job]
     on_startup = startup
     redis_settings = _redis_settings()

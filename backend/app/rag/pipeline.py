@@ -42,7 +42,7 @@ async def ingest_source_bytes(
 
         chunks = split_text(text)
         embedder = get_embedding_model()
-        vectors = embedder.embed_documents(chunks)
+        vectors = await embedder.aembed_documents(chunks)
 
         await session.execute(delete(DocumentChunk).where(DocumentChunk.source_id == source.id))
 
@@ -59,7 +59,7 @@ async def ingest_source_bytes(
         source.status = SourceStatus.ready
         source.error_message = None
         await session.commit()
-    except Exception as exc:  # noqa: BLE001 — persist failure on source row
+    except Exception as exc:
         source.status = SourceStatus.failed
         source.error_message = str(exc)[:2000]
         await session.commit()
@@ -69,7 +69,7 @@ async def ingest_source_bytes(
 async def rag_answer(session: AsyncSession, user_query: str) -> dict:
     settings = get_settings()
     embedder = get_embedding_model()
-    query_vec = embedder.embed_query(user_query)
+    query_vec = await embedder.aembed_query(user_query)
     chunks = await retrieve_chunks(session, query_vec, settings.rag_top_k)
 
     context_blocks = []
@@ -80,18 +80,20 @@ async def rag_answer(session: AsyncSession, user_query: str) -> dict:
     context = "\n\n---\n\n".join(context_blocks) or "(no indexed sources yet)"
     system = load_system_prompt()
     llm = get_llm()
-    prompt = (
-        f"{system}\n\n"
-        f"Context from CHEIRO library:\n{context}\n\n"
-        f"User request:\n{user_query}"
-    )
+    prompt = f"{system}\n\n" f"Context from CHEIRO library:\n{context}\n\n" f"User request:\n{user_query}"
     response = await llm.ainvoke(prompt)
     text = response.content if hasattr(response, "content") else str(response)
 
     return {
         "answer": text,
         "sources": [
-            {"source_id": str(ch.source_id), "chunk_index": ch.chunk_index, "preview": ch.content[:240]}
+            {
+                "source_id": str(ch.source_id),
+                "title": ch.source.title if ch.source else None,
+                "author": ch.source.author if ch.source else None,
+                "chunk_index": ch.chunk_index,
+                "preview": ch.content[:240],
+            }
             for ch in chunks
         ],
     }

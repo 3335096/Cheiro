@@ -5,7 +5,9 @@ from sqlalchemy.orm import selectinload
 from app.models.knowledge import DocumentChunk
 
 
-async def retrieve_chunks(session: AsyncSession, query_embedding: list[float], top_k: int) -> list[DocumentChunk]:
+async def retrieve_chunks(
+    session: AsyncSession, query_embedding: list[float], top_k: int
+) -> list[DocumentChunk]:
     # cosine distance operator <=> in pgvector; order by distance ascending
     stmt = (
         select(DocumentChunk)
