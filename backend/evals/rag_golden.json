@@ -1,0 +1,12 @@
+[
+  {
+    "id": "life_line_basics",
+    "query": "What does a long life line typically indicate in classical chiromancy?",
+    "notes": "Should cite corpus; avoid medical claims."
+  },
+  {
+    "id": "heart_line_depth",
+    "query": "How is emotional intensity interpreted from the heart line?",
+    "notes": "RU or EN answer depending on query language."
+  }
+]
