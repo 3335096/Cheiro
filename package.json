@@ -1,0 +1,19 @@
+{
+  "name": "cheiro",
+  "private": true,
+  "description": "CHEIRO monorepo: developer commands that work on Windows, macOS and Linux",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "docker compose up --build",
+    "dev:down": "docker compose down",
+    "check": "node scripts/check.mjs",
+    "check:backend": "node scripts/check.mjs --backend",
+    "check:frontend": "node scripts/check.mjs --frontend",
+    "check:integration": "node scripts/check.mjs --integration",
+    "fix": "node scripts/check.mjs --fix",
+    "eval": "node scripts/eval.mjs",
+    "sync": "node scripts/sync.mjs"
+  }
+}

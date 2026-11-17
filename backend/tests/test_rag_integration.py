@@ -11,6 +11,7 @@ from types import SimpleNamespace
 
 import pytest
 from sqlalchemy import text
+from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.core.database import Base
@@ -21,7 +22,9 @@ from tests.test_rag_text import build_epub
 
 pytestmark = pytest.mark.integration
 
-DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql+asyncpg://cheiro:cheiro@localhost:5432/cheiro")
+DATABASE_URL = os.environ.get(
+    "TEST_DATABASE_URL", "postgresql+asyncpg://cheiro:cheiro@localhost:5432/cheiro_test"
+)
 
 
 def embed(text_value: str) -> list[float]:
@@ -50,8 +53,24 @@ class FakeLLM:
         return SimpleNamespace(content="Answer grounded in context.")
 
 
+async def ensure_test_database() -> None:
+    """The tests drop and recreate every table, so they only ever touch a dedicated *_test database."""
+    url = make_url(DATABASE_URL)
+    if not (url.database or "").endswith("_test"):
+        pytest.fail(
+            f"Refusing to run: TEST_DATABASE_URL must point to a *_test database, got {url.database!r}"
+        )
+    admin = create_async_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT")
+    async with admin.connect() as conn:
+        exists = await conn.scalar(text("SELECT 1 FROM pg_database WHERE datname = :n"), {"n": url.database})
+        if not exists:
+            await conn.execute(text(f'CREATE DATABASE "{url.database}"'))
+    await admin.dispose()
+
+
 @pytest.fixture
 async def session():
+    await ensure_test_database()
     engine = create_async_engine(DATABASE_URL)
     async with engine.begin() as conn:
         await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))

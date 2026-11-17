@@ -36,3 +36,16 @@ def test_production_requires_bot_token():
 def test_production_accepts_strong_config():
     settings = make(debug=False, admin_api_token="x" * 32, telegram_bot_token="1:abc")
     assert settings.debug is False
+
+
+@pytest.mark.parametrize("scheme", ["postgresql", "postgres"])
+def test_hosted_database_urls_are_converted_to_asyncpg(scheme):
+    settings = make(debug=True, database_url=f"{scheme}://u:p@host:5432/db")
+
+    assert settings.database_url == "postgresql+asyncpg://u:p@host:5432/db"
+
+
+def test_asyncpg_url_is_left_untouched():
+    url = "postgresql+asyncpg://u:p@host:5432/db"
+
+    assert make(debug=True, database_url=url).database_url == url

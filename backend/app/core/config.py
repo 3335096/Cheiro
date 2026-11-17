@@ -1,13 +1,14 @@
 from functools import lru_cache
 
-from pydantic import model_validator
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 INSECURE_ADMIN_TOKEN = "dev-admin-change-me"  # noqa: S105 - sentinel, rejected outside debug mode
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    # The shared .env lives in the repository root; backend/.env overrides it when present.
+    model_config = SettingsConfigDict(env_file=("../.env", ".env"), extra="ignore")
 
     app_name: str = "CHEIRO"
     debug: bool = False
@@ -35,6 +36,15 @@ class Settings(BaseSettings):
     rag_top_k: int = 8
 
     system_prompt_path: str = "app/rag/prompts/system_default.txt"
+
+    @field_validator("database_url")
+    @classmethod
+    def _use_asyncpg_driver(cls, value: str) -> str:
+        # Railway and most hosts provide postgresql:// or postgres://; SQLAlchemy async needs asyncpg.
+        for prefix in ("postgresql://", "postgres://"):
+            if value.startswith(prefix):
+                return "postgresql+asyncpg://" + value.removeprefix(prefix)
+        return value
 
     @model_validator(mode="after")
     def _reject_insecure_production_config(self) -> "Settings":
