@@ -1,0 +1,8 @@
+title = "CHEIRO gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documented local-development placeholder, rejected by the app when DEBUG is off"
+regexes = ['''dev-admin-change-me''']

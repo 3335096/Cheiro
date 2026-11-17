@@ -56,14 +56,18 @@ npm run check:integration
 
 1. Загрузите EPUB или текстовый PDF в админке.
 2. Дождитесь статуса `ready`.
-3. Задайте вопрос:
+3. Задайте вопрос. Проще всего через Swagger (работает одинаково на любой ОС): http://localhost:8000/docs → `POST /api/admin/rag/query` → Try it out → в поле `X-Admin-Token` вставьте значение `ADMIN_API_TOKEN` из `.env` → тело `{"query": "What does the heart line represent?"}`.
+
+   То же из Git Bash или WSL:
 
 ```bash
 curl -s -X POST http://localhost:8000/api/admin/rag/query \
-  -H "X-Admin-Token: dev-admin-change-me" \
+  -H "X-Admin-Token: $ADMIN_API_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"query":"What does the heart line represent?"}'
 ```
+
+   В PowerShell `curl` является псевдонимом другой команды: используйте Swagger или `curl.exe`.
 
 ## Telegram (бот и Mini App с нуля)
 
