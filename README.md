@@ -1,39 +1,50 @@
 # CHEIRO
 
-Telegram Mini App для хиромантии с **RAG** на профессиональных источниках (RU/EN).
-
-## Документация
-
-- [ТЗ v1](docs/tz-v1.md)
-- [Архитектура](docs/architecture.md)
-- [Решения](docs/decisions.md)
-- [Runbook](docs/runbook.md)
+Telegram Mini App для анализа линий руки. Ядро продукта — **RAG на профессиональной литературе по хиромантии** (RU/EN). Фото ладоней нигде не сохраняются.
 
 ## Быстрый старт
 
 ```bash
-cp .env.example .env
-# заполните OPENROUTER_API_KEY
-docker compose up --build
+npm run setup     # зависимости, .env
+# впишите OPENROUTER_API_KEY в .env
+npm run dev       # весь стек в Docker Compose
 ```
 
-| URL | Назначение |
-|-----|------------|
-| http://localhost:5173 | Mini App (+ `/admin`) |
-| http://localhost:8000/health | API |
+Mini App: http://localhost:5173 · API: http://localhost:8000/docs
 
-## Стек (фиксированный)
+Нужны Git, Node 22+, Python 3.12, Docker Desktop. Подробно: [локальная разработка](docs/ops/local-development.md).
 
-Python **FastAPI**, **ARQ**, **PostgreSQL + pgvector**, **Redis**, **React + Vite** TMA, **LangChain**, **OpenRouter**, хостинг **Railway**.
+## Команды
 
-## Репозиторий
+| Команда | Что делает |
+|---------|------------|
+| `npm run check` | все проверки, как в CI |
+| `npm run check:integration` | + интеграционные тесты pgvector |
+| `npm run fix` | автоисправление и форматирование |
+| `npm run eval` | прогон golden-набора RAG |
+| `npm run sync` | синхронизация с GitHub и облачными агентами |
+
+## Документация
+
+Индекс: [docs/README.md](docs/README.md). Для агентов Cursor: [AGENTS.md](AGENTS.md).
+
+- [Границы этапов](docs/product/scope-and-stages.md) · [Дорожная карта](docs/product/roadmap.md)
+- [Архитектура](docs/architecture/overview.md) · [Решения (ADR)](docs/adr/README.md)
+- [RAG](docs/rag/README.md) · [Дизайн](docs/design/README.md)
+- [Railway](docs/ops/railway.md) · [GitHub и CI](docs/ops/github.md) · [Настройка Cursor](docs/ops/cursor.md)
+
+## Стек
+
+Python 3.12 · FastAPI · ARQ + Redis · PostgreSQL + pgvector · LangChain · OpenRouter · React + TypeScript + Vite · Railway.
+
+## Структура
 
 ```text
-backend/    API + worker + RAG
-frontend/   TMA + admin UI
-docs/       ТЗ и эксплуатация
+backend/    FastAPI, worker, RAG, тесты, evals
+frontend/   Telegram Mini App
+docs/       документация
+scripts/    команды для разработки (Node)
+.cursor/    правила, скилы, агенты, хуки для Cursor
 ```
-
-## Лицензия
 
 Proprietary — внутренний продукт.
