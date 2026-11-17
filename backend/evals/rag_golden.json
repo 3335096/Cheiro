@@ -2,11 +2,19 @@
   {
     "id": "life_line_basics",
     "query": "What does a long life line typically indicate in classical chiromancy?",
-    "notes": "Should cite corpus; avoid medical claims."
+    "language": "en",
+    "expected_source_titles": [],
+    "must_include": [],
+    "must_not_include": ["diagnos", "guaranteed"],
+    "notes": "Fill expected_source_titles and must_include once the corpus is loaded. Must not make medical claims."
   },
   {
     "id": "heart_line_depth",
-    "query": "How is emotional intensity interpreted from the heart line?",
-    "notes": "RU or EN answer depending on query language."
+    "query": "Как по линии сердца определяется эмоциональная глубина человека?",
+    "language": "ru",
+    "expected_source_titles": [],
+    "must_include": [],
+    "must_not_include": ["диагноз", "гарантированно"],
+    "notes": "Russian query: the answer must be in Russian and cite a source."
   }
 ]

@@ -1,6 +1,9 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+INSECURE_ADMIN_TOKEN = "dev-admin-change-me"  # noqa: S105 - sentinel, rejected outside debug mode
 
 
 class Settings(BaseSettings):
@@ -20,7 +23,7 @@ class Settings(BaseSettings):
     llm_model: str = "openai/gpt-4o-mini"
     embedding_model: str = "openai/text-embedding-3-small"
 
-    admin_api_token: str = "dev-admin-change-me"
+    admin_api_token: str = INSECURE_ADMIN_TOKEN
 
     ocr_provider: str = "none"  # none | gcv | textract
 
@@ -32,6 +35,16 @@ class Settings(BaseSettings):
     rag_top_k: int = 8
 
     system_prompt_path: str = "app/rag/prompts/system_default.txt"
+
+    @model_validator(mode="after")
+    def _reject_insecure_production_config(self) -> "Settings":
+        if self.debug:
+            return self
+        if self.admin_api_token == INSECURE_ADMIN_TOKEN or len(self.admin_api_token) < 24:
+            raise ValueError("ADMIN_API_TOKEN must be a unique secret of 24+ characters when DEBUG is off")
+        if not self.telegram_bot_token:
+            raise ValueError("TELEGRAM_BOT_TOKEN is required when DEBUG is off")
+        return self
 
 
 @lru_cache

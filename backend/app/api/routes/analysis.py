@@ -1,4 +1,5 @@
 import base64
+import uuid
 
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from pydantic import BaseModel, Field
@@ -55,21 +56,26 @@ async def create_analysis(
 
 
 @router.get("/analysis/{job_id}")
-async def get_analysis(job_id: str, db: AsyncSession = Depends(get_db)) -> dict:
+async def get_analysis(
+    job_id: str,
+    db: AsyncSession = Depends(get_db),
+    x_telegram_init_data: str | None = Header(default=None),
+) -> dict:
+    user_id = _telegram_user_id(x_telegram_init_data)
     try:
-        jid = __import__("uuid").UUID(job_id)
+        jid = uuid.UUID(job_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail="Job not found") from exc
 
     result = await db.execute(select(AnalysisJob).where(AnalysisJob.id == jid))
     job = result.scalar_one_or_none()
-    if not job:
+    if not job or job.telegram_user_id != user_id:
         raise HTTPException(status_code=404, detail="Job not found")
 
+    # The full report is delivered only through the bot; the Mini App never receives it.
     return {
         "job_id": str(job.id),
         "status": job.status.value,
         "teaser": job.teaser,
-        "full_report": job.full_report,
         "error_message": job.error_message,
     }

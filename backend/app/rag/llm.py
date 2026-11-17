@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from langchain_openai import ChatOpenAI
+from pydantic import SecretStr
 
 from app.core.config import get_settings
 
@@ -9,7 +10,7 @@ def get_llm() -> ChatOpenAI:
     settings = get_settings()
     return ChatOpenAI(
         model=settings.llm_model,
-        api_key=settings.openrouter_api_key or "not-set",
+        api_key=SecretStr(settings.openrouter_api_key or "not-set"),
         base_url=settings.openrouter_base_url,
         temperature=0.4,
     )

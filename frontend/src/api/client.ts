@@ -18,13 +18,14 @@ export async function createAnalysis(imageBase64: string, locale = "ru") {
 }
 
 export async function getAnalysis(jobId: string) {
-  const res = await fetch(`${API_URL}/api/analysis/${jobId}`);
+  const res = await fetch(`${API_URL}/api/analysis/${jobId}`, {
+    headers: { "X-Telegram-Init-Data": telegramInitData() },
+  });
   if (!res.ok) throw new Error(await res.text());
   return res.json() as Promise<{
     job_id: string;
     status: string;
     teaser?: string;
-    full_report?: string;
     error_message?: string;
   }>;
 }
